@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>เกมฝึกพิมพ์ภาษาไทย</title>
+
+<style>
+body{
+font-family:Tahoma;
+background:linear-gradient(#ffe6f2,#fff);
+text-align:center;
+padding:20px;
+}
+
+.container{
+max-width:650px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 0 15px rgba(0,0,0,.2);
+}
+
+h1{color:#d63384;}
+
+input{
+padding:10px;
+font-size:22px;
+width:250px;
+text-align:center;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+button{
+padding:12px 25px;
+font-size:18px;
+border:none;
+border-radius:10px;
+background:#ff69b4;
+color:white;
+cursor:pointer;
+margin:5px;
+}
+
+button:hover{background:#e75480;}
+
+#char{
+font-size:90px;
+color:#ff6600;
+margin:20px;
+}
+
+.hidden{display:none;}
+
+#stars{
+font-size:28px;
+color:gold;
+margin:10px;
+}
+
+#timer{
+font-size:26px;
+font-weight:bold;
+color:#333;
+margin:10px;
+}
+
+/* FIX ผลลัพธ์ */
+.correct{
+color:green;
+font-size:28px;
+font-weight:bold;
+}
+
+.wrong{
+color:red;
+font-size:28px;
+font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="login">
+<h1>🌸 โปรแกรมฝึกพิมพ์ภาษาไทย 🌸</h1>
+
+<h3>ครูวิภาพร ป้อมกระโทก</h3>
+
+<p>
+โรงเรียนวัดเกาะสุวรรณาราม<br>
+สำนักงานเขตสายไหม กรุงเทพมหานคร
+</p>
+
+<p>ชื่อ-สกุล นักเรียน</p>
+<input id="name">
+<br><br>
+<button onclick="start()">เข้าสู่ระบบ</button>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="hidden">
+<h2 id="welcome"></h2>
+
+<button onclick="startGame('con')">พยัญชนะ</button>
+<button onclick="startGame('vow')">สระ</button>
+<button onclick="startGame('num')">ตัวเลข</button>
+<button onclick="startGame('mix')">รวมทั้งหมด</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="hidden">
+
+<h2 id="player"></h2>
+
+<div id="timer">⏱️ 120</div>
+<div id="stars">⭐ 0</div>
+
+<div id="char"></div>
+
+<input id="answer" autocomplete="off">
+
+<div id="result"></div>
+
+</div>
+
+<!-- END -->
+<div id="end" class="hidden">
+
+<h2>🎉 หมดเวลาแล้ว</h2>
+<h3 id="final"></h3>
+
+<button onclick="backMenu()">กลับเมนู</button>
+
+</div>
+
+</div>
+
+<script>
+
+const consonants=['ก','ข','ฃ','ค','ฅ','ฆ','ง','จ','ฉ','ช','ซ','ฌ','ญ','ฎ','ฏ','ฐ','ฑ','ฒ','ณ','ด','ต','ถ','ท','ธ','น','บ','ป','ผ','ฝ','พ','ฟ','ภ','ม','ย','ร','ล','ว','ศ','ษ','ส','ห','ฬ','อ','ฮ'];
+
+const vowels=['ะ','า','ิ','ี','ึ','ื','ุ','ู','เ','แ','โ','ใ','ไ','ำ'];
+
+const numbers=['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+
+let list=[],current='';
+let score=0;
+let time=120;
+let timer;
+let student='';
+
+function start(){
+
+student=document.getElementById('name').value.trim();
+
+if(!student){
+alert("กรุณากรอกชื่อ");
+return;
+}
+
+login.classList.add('hidden');
+menu.classList.remove('hidden');
+
+welcome.innerText="ยินดีต้อนรับ "+student;
+
+}
+
+function startGame(type){
+
+menu.classList.add('hidden');
+game.classList.remove('hidden');
+
+player.innerText=student;
+
+score=0;
+time=120;
+
+if(type=='con') list=consonants;
+if(type=='vow') list=vowels;
+if(type=='num') list=numbers;
+if(type=='mix') list=[...consonants,...vowels,...numbers];
+
+startTimer();
+next();
+
+}
+
+function startTimer(){
+
+clearInterval(timer);
+
+timer=setInterval(()=>{
+
+time--;
+
+document.getElementById("timer").innerText="⏱️ "+time;
+
+if(time<=0){
+clearInterval(timer);
+endGame();
+}
+
+},1000);
+
+}
+
+function next(){
+
+current=list[Math.floor(Math.random()*list.length)];
+
+document.getElementById("char").innerText=current;
+
+let ans=document.getElementById("answer");
+ans.value='';
+ans.focus();
+
+document.getElementById("result").innerText='';
+
+}
+
+document.getElementById("answer").addEventListener("keydown",function(e){
+if(e.key==="Enter"){
+check();
+}
+});
+
+function check(){
+
+let ans=document.getElementById("answer").value.trim();
+let result=document.getElementById("result");
+
+if(ans===current){
+
+score++;
+result.innerHTML="✔ ถูกต้อง";
+result.className="correct";
+
+}else{
+
+result.innerHTML="❌ คำตอบที่ถูกคือ "+current;
+result.className="wrong";
+
+}
+
+document.getElementById("stars").innerText="⭐ "+score;
+
+setTimeout(next,500);
+
+}
+
+function endGame(){
+
+game.classList.add('hidden');
+end.classList.remove('hidden');
+
+final.innerHTML=
+student+
+"<br><br>คะแนน: "+score+
+"<br>เวลา: หมดแล้ว";
+
+}
+
+function backMenu(){
+
+end.classList.add('hidden');
+menu.classList.remove('hidden');
+
+}
+
+</script>
+
+</body>
+</html>
